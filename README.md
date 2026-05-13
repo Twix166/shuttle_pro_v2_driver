@@ -171,6 +171,7 @@ For a non-invasive userspace hardware check:
 cd userspace
 cargo run --bin shuttleproctl -- detect
 cargo run --bin shuttleproctl -- monitor
+cargo run --bin shuttleproctl -- tui
 cargo run --bin shuttleprod -- --profile profiles/kdenlive.toml --dry-run
 ```
 

@@ -23,8 +23,16 @@ if [ -d "$repo/userspace" ]; then
 	if command -v cargo >/dev/null 2>&1; then
 		(
 			cd "$repo/userspace"
-			cargo fmt --check
-			cargo clippy --all-targets -- -D warnings
+			if cargo fmt --version >/dev/null 2>&1; then
+				cargo fmt --check
+			else
+				echo "cargo fmt not found; skipping userspace format check"
+			fi
+			if cargo clippy --version >/dev/null 2>&1; then
+				cargo clippy --all-targets -- -D warnings
+			else
+				echo "cargo clippy not found; skipping userspace clippy check"
+			fi
 			cargo test
 			cargo run --quiet --bin shuttleproctl -- profile validate profiles/kdenlive.toml
 			cargo run --quiet --bin shuttleproctl -- profile validate profiles/test.toml

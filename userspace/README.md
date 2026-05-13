@@ -16,10 +16,14 @@ cargo build --release
 ```sh
 cargo run --bin shuttleproctl -- detect
 cargo run --bin shuttleproctl -- monitor
+cargo run --bin shuttleproctl -- tui
 ```
 
 `monitor` prints button, jog, and shuttle events without creating a virtual
 keyboard.
+
+`tui` opens a live terminal dashboard with button state, shuttle position, jog
+movement, and a recent event log. Press `q`, `Esc`, or `Ctrl+C` to exit.
 
 Expected controls from the kernel driver:
 
@@ -73,5 +77,6 @@ while shutting down.
 2. Install the repository udev rule so the desktop user can read the input node.
 3. Load `uinput` and confirm `/dev/uinput` exists.
 4. Run `shuttleproctl monitor` and test all buttons, jog, and shuttle ring.
-5. Run `shuttleprod --dry-run` and confirm actions match the selected profile.
-6. Start Kdenlive, run `shuttleprod`, and confirm jog, shuttle, and key buttons.
+5. Run `shuttleproctl tui` and confirm the dashboard reflects the same controls.
+6. Run `shuttleprod --dry-run` and confirm actions match the selected profile.
+7. Start Kdenlive, run `shuttleprod`, and confirm jog, shuttle, and key buttons.
