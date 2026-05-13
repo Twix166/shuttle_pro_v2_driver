@@ -1,0 +1,12 @@
+.agents/
+.codex/
+.repo/
+*.ko
+*.mod
+*.mod.c
+*.o
+*.order
+.*.cmd
+.module-common.o
+Module.symvers
+modules.order

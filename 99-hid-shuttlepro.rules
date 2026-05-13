@@ -1,0 +1,2 @@
+# Give the active local user access to the ShuttlePro evdev node.
+SUBSYSTEM=="input", ATTRS{name}=="Contour ShuttlePro v2", TAG+="uaccess"

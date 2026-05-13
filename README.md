@@ -1,0 +1,89 @@
+# Contour ShuttlePro v2 Linux HID Driver
+
+Small out-of-tree HID driver for the Contour ShuttlePro v2 USB controller
+(`0b33:0030`).
+
+The driver exposes raw device controls through evdev:
+
+- `BTN_TRIGGER_HAPPY1` through `BTN_TRIGGER_HAPPY13` for the 13 physical
+  buttons currently described by the HID report descriptor.
+- `REL_DIAL` for jog-wheel movement.
+- `ABS_MISC` for the spring-loaded shuttle wheel, with values `-7..7`.
+
+It intentionally does not map controls to keyboard shortcuts. Application
+profiles and macros belong in userspace.
+
+## Build
+
+```sh
+make
+```
+
+## Temporary Load
+
+Load the module:
+
+```sh
+sudo insmod hid-shuttlepro.ko
+```
+
+If the device was already plugged in and did not bind automatically, move it
+from `hid-generic` to `hid-shuttlepro`:
+
+```sh
+dev=$(basename /sys/bus/hid/devices/0003:0B33:0030.*)
+echo -n "$dev" | sudo tee /sys/bus/hid/drivers/hid-generic/unbind
+echo -n "$dev" | sudo tee /sys/bus/hid/drivers/hid-shuttlepro/bind
+```
+
+If unbind reports `No such device` and bind reports `Device or resource busy`,
+the module is already bound. Confirm with:
+
+```sh
+readlink /sys/bus/hid/devices/0003:0B33:0030.*/driver
+```
+
+## DKMS Install
+
+DKMS rebuilds the module automatically when new matching kernel headers are
+installed:
+
+```sh
+sudo dkms add .
+sudo dkms build hid-shuttlepro/0.1.0
+sudo dkms install hid-shuttlepro/0.1.0
+sudo modprobe hid-shuttlepro
+```
+
+Load the module automatically at boot:
+
+```sh
+sudo install -m 0644 hid-shuttlepro.modules-load.conf \
+  /etc/modules-load.d/hid-shuttlepro.conf
+```
+
+Allow the active desktop user to read the evdev node:
+
+```sh
+sudo install -m 0644 99-hid-shuttlepro.rules \
+  /etc/udev/rules.d/99-hid-shuttlepro.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger --subsystem-match=input
+```
+
+## Test
+
+```sh
+scripts/find-event.sh
+sudo scripts/test-events.sh
+```
+
+`scripts/find-event.sh` prints the current event node for `Contour ShuttlePro
+v2`; the number may change across reloads. Verify:
+
+- each button emits a stable `BTN_TRIGGER_HAPPY*` press and release;
+- the spring wheel emits `ABS_MISC` values from `-7` to `7` and returns to `0`;
+- the jog wheel emits positive and negative `REL_DIAL` deltas.
+
+The jog wheel reports an internal 8-bit absolute counter. The first report is
+used as the baseline, so no jog delta is emitted until a later report.
