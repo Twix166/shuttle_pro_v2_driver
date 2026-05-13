@@ -106,6 +106,14 @@ Exit with `Ctrl+C`.
 
 ## Kdenlive Integration
 
+Installer path:
+
+```sh
+scripts/install.sh --configure-kdenlive
+```
+
+Manual path:
+
 Start Kdenlive, then run:
 
 ```sh

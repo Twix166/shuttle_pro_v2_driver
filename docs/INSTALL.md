@@ -36,11 +36,21 @@ scripts/install.sh --prefix "$HOME/.local"
 scripts/install.sh --no-dkms
 scripts/install.sh --no-userspace
 scripts/install.sh --no-user-service
+scripts/install.sh --configure-kdenlive
 ```
 
 Use `--prefix "$HOME/.local"` if you want userspace binaries installed without
 using `/usr/local/bin`. DKMS, udev, and module-load configuration still require
 `sudo`.
+
+Use `--configure-kdenlive` to validate the bundled Kdenlive profile and enable
+the `shuttleprod` systemd user service immediately. This is the closest current
+option to out-of-the-box Kdenlive behavior.
+
+The Kdenlive integration deliberately does not rewrite Kdenlive's shortcut
+configuration files. It emits Kdenlive's documented default keyboard shortcuts
+through `uinput`, so users with customized Kdenlive shortcuts should adjust
+`~/.config/shuttlepro/profiles/kdenlive.toml` instead.
 
 ## Post-Install Checks
 
@@ -58,6 +68,12 @@ Enable the systemd user service:
 
 ```sh
 systemctl --user enable --now shuttleprod.service
+```
+
+Or let the installer enable it while installing:
+
+```sh
+scripts/install.sh --configure-kdenlive
 ```
 
 Stop it with:

@@ -101,6 +101,12 @@ scripts/install.sh
 See [docs/INSTALL.md](docs/INSTALL.md) for installer options, post-install
 checks, and the packaging roadmap.
 
+To install and immediately enable the bundled Kdenlive userspace profile:
+
+```sh
+scripts/install.sh --configure-kdenlive
+```
+
 Load the module automatically at boot:
 
 ```sh

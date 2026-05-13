@@ -17,6 +17,12 @@ The repository installer can build and install both userspace binaries:
 ../scripts/install.sh --no-dkms
 ```
 
+To install the bundled Kdenlive profile and enable the mapper user service:
+
+```sh
+../scripts/install.sh --configure-kdenlive
+```
+
 ## Test the Device
 
 ```sh

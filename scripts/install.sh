@@ -9,6 +9,7 @@ prefix=/usr/local
 install_dkms=1
 install_userspace=1
 install_user_service=1
+configure_kdenlive=0
 
 usage()
 {
@@ -22,6 +23,7 @@ Options:
   --no-dkms            Skip DKMS/kernel module installation
   --no-userspace       Skip Rust userspace build and binary installation
   --no-user-service    Skip systemd user service/profile installation
+  --configure-kdenlive Install the Kdenlive profile and enable the mapper user service
   -h, --help           Show this help
 
 Run as your normal desktop user. The script uses sudo for DKMS, udev, and
@@ -49,6 +51,11 @@ while [ "$#" -gt 0 ]; do
 		;;
 	--no-user-service)
 		install_user_service=0
+		shift
+		;;
+	--configure-kdenlive)
+		configure_kdenlive=1
+		install_user_service=1
 		shift
 		;;
 	-h | --help)
@@ -164,6 +171,38 @@ install_profiles_and_service()
 	fi
 }
 
+configure_kdenlive_profile()
+{
+	profile_file=${XDG_CONFIG_HOME:-"$HOME/.config"}/shuttlepro/profiles/kdenlive.toml
+
+	if [ "$install_userspace" -eq 1 ]; then
+		ctl=$prefix/bin/shuttleproctl
+	else
+		ctl=$(command -v shuttleproctl || true)
+	fi
+
+	if [ -z "${ctl:-}" ] || [ ! -x "$ctl" ]; then
+		echo "shuttleproctl not found; cannot validate Kdenlive profile" >&2
+		exit 1
+	fi
+
+	echo "Validating Kdenlive ShuttlePro profile"
+	"$ctl" profile validate "$profile_file"
+
+	if ! command -v kdenlive >/dev/null 2>&1; then
+		echo "warning: kdenlive was not found on PATH; profile and service were still installed" >&2
+	fi
+
+	if ! command -v systemctl >/dev/null 2>&1; then
+		echo "systemctl not found; cannot enable user service automatically" >&2
+		return
+	fi
+
+	echo "Enabling ShuttlePro mapper user service for Kdenlive profile"
+	systemctl --user daemon-reload || true
+	systemctl --user enable --now shuttleprod.service
+}
+
 if [ "$(id -u)" -eq 0 ]; then
 	echo "Run this installer as your normal user, not root." >&2
 	echo "It will use sudo only for system-level installation steps." >&2
@@ -182,6 +221,10 @@ if [ "$install_user_service" -eq 1 ]; then
 	install_profiles_and_service
 fi
 
+if [ "$configure_kdenlive" -eq 1 ]; then
+	configure_kdenlive_profile
+fi
+
 cat <<EOF
 
 Install complete.
@@ -194,3 +237,13 @@ Suggested checks:
 To enable the user service:
   systemctl --user enable --now shuttleprod.service
 EOF
+
+if [ "$configure_kdenlive" -eq 1 ]; then
+	cat <<EOF
+
+Kdenlive integration was configured using the bundled ShuttlePro profile.
+This does not rewrite Kdenlive's own shortcut files; it relies on Kdenlive's
+documented default shortcuts. If you changed Kdenlive shortcuts, adjust:
+  \${XDG_CONFIG_HOME:-\$HOME/.config}/shuttlepro/profiles/kdenlive.toml
+EOF
+fi
