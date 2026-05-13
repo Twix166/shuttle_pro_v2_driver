@@ -136,6 +136,9 @@ The GitHub Actions pipeline runs the automated checks on every push and pull
 request. It cannot run the hardware integration test because CI runners do not
 have a Contour ShuttlePro v2 attached.
 
+On pushes to `main`, CI failures automatically open or update a GitHub issue so
+hardening regressions are tracked until the pipeline passes again.
+
 See [docs/HARDENING.md](docs/HARDENING.md) for the full security and stability
 validation plan, including sanitizer and hardware stress-test lanes.
 

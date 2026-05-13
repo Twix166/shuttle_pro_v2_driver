@@ -30,6 +30,11 @@ The automated suite covers:
 - optional `sparse` and Coccinelle checks when installed;
 - isolated DKMS add/build.
 
+On pushes to `main`, GitHub Actions opens or updates a tracking issue if the
+hardening pipeline fails. The issue links to the failed run and is closed
+automatically after `main` passes again. Pull requests report failures through
+normal PR checks and do not open repository issues.
+
 ## Kernel-Focused Frameworks
 
 - KUnit is the preferred in-kernel unit test framework if this code is moved
