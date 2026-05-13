@@ -51,6 +51,17 @@ Expected controls from the kernel driver:
 cargo run --bin shuttleproctl -- profile validate profiles/kdenlive.toml
 ```
 
+## Generate a Printable Keymap
+
+```sh
+cargo run --bin shuttleproctl -- \
+  keymap --profile profiles/kdenlive.toml --output kdenlive-keymap.svg
+```
+
+The generated SVG is a printable reference sheet based on the selected profile.
+Print at 100% scale and verify fit before cutting or laminating. It is not a
+dimension-certified adhesive overlay template.
+
 ## Run the Kdenlive Profile
 
 ```sh

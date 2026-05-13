@@ -47,6 +47,8 @@ Userspace command summary:
 - `shuttleproctl detect` prints the current ShuttlePro event node.
 - `shuttleproctl monitor` prints raw decoded device events.
 - `shuttleproctl tui` opens a live terminal dashboard for hardware UAT.
+- `shuttleproctl keymap --profile <file> --output <svg>` writes a printable
+  SVG keymap for a profile.
 - `shuttleproctl profile validate <file>` validates TOML profiles.
 - `shuttleprod --profile <file>` runs the profile mapper daemon.
 

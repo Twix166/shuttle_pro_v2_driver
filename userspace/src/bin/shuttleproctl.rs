@@ -10,12 +10,15 @@ use ratatui::style::{Color, Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, List, ListItem, Paragraph, Wrap};
 use ratatui::Terminal;
-use shuttlepro::config::Profile;
+use shuttlepro::config::{CompiledProfile, Profile};
 use shuttlepro::device;
 use shuttlepro::input::{EventDevice, InputEvent, ABS_MISC, EV_ABS, EV_KEY, EV_REL, REL_DIAL};
+use shuttlepro::keys::KeyChord;
 use signal_hook::consts::signal::{SIGINT, SIGTERM};
 use signal_hook::flag;
 use std::collections::VecDeque;
+use std::fmt::Write as _;
+use std::fs;
 use std::io::{self, Stdout};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -55,6 +58,14 @@ enum Command {
         event: Option<PathBuf>,
         #[arg(long, default_value_t = 60)]
         fps: u16,
+    },
+    Keymap {
+        #[arg(long)]
+        profile: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+        #[arg(long)]
+        title: Option<String>,
     },
     Profile {
         #[command(subcommand)]
@@ -109,6 +120,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             run_tui(event, fps.max(1))?;
         }
+        Command::Keymap {
+            profile,
+            output,
+            title,
+        } => {
+            let profile = Profile::load(&profile)?.compile()?;
+            let title =
+                title.unwrap_or_else(|| format!("{} ShuttlePro v2 Keymap", profile.profile.name));
+            let svg = render_keymap_svg(&profile, &title);
+
+            fs::write(&output, svg)?;
+            println!("wrote {}", output.display());
+        }
         Command::Profile {
             command: ProfileCommand::Validate { file },
         } => {
@@ -118,6 +142,223 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+fn render_keymap_svg(profile: &CompiledProfile, title: &str) -> String {
+    let mut svg = String::new();
+
+    svg.push_str(r#"<?xml version="1.0" encoding="UTF-8"?>"#);
+    svg.push('\n');
+    svg.push_str(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" width="11in" height="8.5in" viewBox="0 0 1100 850">"#,
+    );
+    svg.push('\n');
+    svg.push_str(
+        r#"<style>
+text { font-family: "Inter", "DejaVu Sans", Arial, sans-serif; fill: #111827; }
+.small { font-size: 18px; }
+.label { font-size: 22px; font-weight: 700; }
+.title { font-size: 36px; font-weight: 800; }
+.meta { font-size: 16px; fill: #4b5563; }
+.button { fill: #f9fafb; stroke: #111827; stroke-width: 2; }
+.button-num { font-size: 16px; font-weight: 800; fill: #6b7280; }
+.control { fill: #eef2ff; stroke: #3730a3; stroke-width: 2; }
+.outline { fill: #ffffff; stroke: #111827; stroke-width: 3; }
+.cut { fill: none; stroke: #9ca3af; stroke-width: 1; stroke-dasharray: 8 8; }
+</style>"#,
+    );
+    svg.push('\n');
+
+    rect(&mut svg, 35, 35, 1030, 780, 28, "outline");
+    line(&mut svg, 70, 760, 1030, 760, "cut");
+    text(&mut svg, 70, 88, "title", title);
+    text(
+        &mut svg,
+        70,
+        118,
+        "meta",
+        "Generated from profile TOML. Print at 100% scale; verify fit before cutting or laminating.",
+    );
+
+    draw_button_grid(&mut svg, profile);
+    draw_transport_controls(&mut svg, profile);
+    draw_legend(&mut svg);
+
+    svg.push_str("</svg>\n");
+    svg
+}
+
+fn draw_button_grid(svg: &mut String, profile: &CompiledProfile) {
+    let buttons = [
+        (1, 95, 165),
+        (2, 235, 165),
+        (3, 375, 165),
+        (4, 515, 165),
+        (5, 655, 165),
+        (6, 95, 285),
+        (7, 235, 285),
+        (8, 375, 285),
+        (9, 515, 285),
+        (10, 655, 285),
+        (11, 235, 405),
+        (12, 375, 405),
+        (13, 515, 405),
+    ];
+
+    for (number, x, y) in buttons {
+        draw_button(svg, number, x, y, button_action(profile, number));
+    }
+}
+
+fn draw_transport_controls(svg: &mut String, profile: &CompiledProfile) {
+    circle(svg, 890, 265, 95, "control");
+    text_center(svg, 890, 245, "label", "Jog");
+    text_center(
+        svg,
+        890,
+        276,
+        "small",
+        &format!("CW: {}", chords(&profile.jog.positive)),
+    );
+    text_center(
+        svg,
+        890,
+        305,
+        "small",
+        &format!("CCW: {}", chords(&profile.jog.negative)),
+    );
+
+    rect(svg, 765, 420, 250, 95, 44, "control");
+    text_center(svg, 890, 455, "label", "Shuttle Ring");
+    text_center(
+        svg,
+        890,
+        486,
+        "small",
+        &format!("- {}", chords(&profile.shuttle.negative)),
+    );
+    text_center(
+        svg,
+        890,
+        512,
+        "small",
+        &format!("0 {}", chords(&profile.shuttle.neutral)),
+    );
+    text_center(
+        svg,
+        890,
+        538,
+        "small",
+        &format!("+ {}", chords(&profile.shuttle.positive)),
+    );
+}
+
+fn draw_legend(svg: &mut String) {
+    text(
+        svg,
+        80,
+        775,
+        "meta",
+        "Button numbers follow driver order BTN_TRIGGER_HAPPY1..13.",
+    );
+    text(
+        svg,
+        80,
+        800,
+        "meta",
+        "This is a printable keymap/reference sheet, not a dimension-certified adhesive overlay.",
+    );
+}
+
+fn draw_button(svg: &mut String, number: u8, x: i32, y: i32, action: String) {
+    rect(svg, x, y, 108, 76, 12, "button");
+    text(svg, x + 10, y + 24, "button-num", &format!("{number:02}"));
+    wrapped_text(svg, x + 14, y + 50, 84, &action);
+}
+
+fn button_action(profile: &CompiledProfile, number: u8) -> String {
+    profile
+        .buttons
+        .get(&number)
+        .map(|button| chords(&button.press))
+        .filter(|action| !action.is_empty())
+        .unwrap_or_else(|| "-".to_string())
+}
+
+fn chords(chords: &[KeyChord]) -> String {
+    chords
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+fn wrapped_text(svg: &mut String, x: i32, y: i32, width: usize, text_value: &str) {
+    let max_chars = (width / 9).max(6);
+    let mut line = String::new();
+    let mut dy = 0;
+
+    for word in text_value.split_whitespace() {
+        if !line.is_empty() && line.len() + word.len() + 1 > max_chars {
+            text(svg, x, y + dy, "small", &line);
+            line.clear();
+            dy += 21;
+        }
+
+        if !line.is_empty() {
+            line.push(' ');
+        }
+        line.push_str(word);
+    }
+
+    if !line.is_empty() {
+        text(svg, x, y + dy, "small", &line);
+    }
+}
+
+fn rect(svg: &mut String, x: i32, y: i32, width: i32, height: i32, radius: i32, class: &str) {
+    let _ = writeln!(
+        svg,
+        r#"<rect class="{class}" x="{x}" y="{y}" width="{width}" height="{height}" rx="{radius}"/>"#
+    );
+}
+
+fn circle(svg: &mut String, cx: i32, cy: i32, radius: i32, class: &str) {
+    let _ = writeln!(
+        svg,
+        r#"<circle class="{class}" cx="{cx}" cy="{cy}" r="{radius}"/>"#
+    );
+}
+
+fn line(svg: &mut String, x1: i32, y1: i32, x2: i32, y2: i32, class: &str) {
+    let _ = writeln!(
+        svg,
+        r#"<line class="{class}" x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}"/>"#
+    );
+}
+
+fn text(svg: &mut String, x: i32, y: i32, class: &str, text_value: &str) {
+    let _ = writeln!(
+        svg,
+        r#"<text class="{class}" x="{x}" y="{y}">{}</text>"#,
+        escape_xml(text_value)
+    );
+}
+
+fn text_center(svg: &mut String, x: i32, y: i32, class: &str, text_value: &str) {
+    let _ = writeln!(
+        svg,
+        r#"<text class="{class}" x="{x}" y="{y}" text-anchor="middle">{}</text>"#,
+        escape_xml(text_value)
+    );
+}
+
+fn escape_xml(text_value: &str) -> String {
+    text_value
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
 }
 
 #[derive(Debug)]

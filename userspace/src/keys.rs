@@ -50,10 +50,10 @@ impl FromStr for KeyChord {
 impl fmt::Display for KeyChord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for modifier in &self.modifiers {
-            write!(f, "{}+", modifier.name)?;
+            write!(f, "{}+", display_key_name(modifier))?;
         }
 
-        write!(f, "{}", self.key.name)
+        write!(f, "{}", display_key_name(&self.key))
     }
 }
 
@@ -125,6 +125,15 @@ fn key(name: &'static str, code: u16) -> Key {
     Key { name, code }
 }
 
+fn display_key_name(key: &Key) -> &'static str {
+    match key.name {
+        "leftctrl" => "ctrl",
+        "leftshift" => "shift",
+        "leftalt" => "alt",
+        name => name,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,6 +149,7 @@ mod tests {
 
         assert_eq!(chord.modifiers.len(), 2);
         assert_eq!(chord.key.name, "z");
+        assert_eq!(chord.to_string(), "ctrl+shift+z");
     }
 
     #[test]

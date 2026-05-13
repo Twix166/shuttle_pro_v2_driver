@@ -87,6 +87,20 @@ Optional low-refresh mode:
 cargo run --bin shuttleproctl -- tui --fps 10
 ```
 
+## Printable Keymap
+
+```sh
+cargo run --bin shuttleproctl -- \
+  keymap --profile profiles/kdenlive.toml --output kdenlive-keymap.svg
+```
+
+Pass criteria:
+
+- The SVG opens in a browser or vector editor.
+- The title references the selected profile.
+- Buttons 1 through 13 show the mapped profile actions.
+- Jog and shuttle sections show the profile actions for each direction.
+
 ## Profile Dry Run
 
 ```sh

@@ -57,6 +57,7 @@ through `uinput`, so users with customized Kdenlive shortcuts should adjust
 ```sh
 shuttleproctl detect
 shuttleproctl tui
+shuttleproctl keymap --profile "$HOME/.config/shuttlepro/profiles/kdenlive.toml" --output kdenlive-keymap.svg
 shuttleprod --profile "$HOME/.config/shuttlepro/profiles/kdenlive.toml" --dry-run --no-grab
 ```
 
