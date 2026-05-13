@@ -25,6 +25,8 @@ keyboard.
 `tui` opens a live terminal dashboard with button state, shuttle position, jog
 movement, and a recent event log. Press `q`, `Esc`, or `Ctrl+C` to exit.
 
+For a full hardware acceptance checklist, see [../docs/UAT.md](../docs/UAT.md).
+
 Expected controls from the kernel driver:
 
 - 13 buttons as `EV_KEY` codes starting at `BTN_TRIGGER_HAPPY1`;

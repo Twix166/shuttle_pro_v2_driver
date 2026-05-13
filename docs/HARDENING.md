@@ -27,6 +27,8 @@ The automated suite covers:
 - helper-script unit tests;
 - license, DKMS, udev, and risk-notice metadata checks;
 - kernel module build with `W=1`;
+- userspace Rust unit tests and bundled profile validation when Cargo is
+  available;
 - optional `sparse` and Coccinelle checks when installed;
 - isolated DKMS add/build.
 
@@ -42,7 +44,9 @@ normal PR checks and do not open repository issues.
   same decode cases from userspace so they can run in ordinary GitHub Actions.
 - kselftest-style scripts are appropriate for user-visible behavior and
   hardware validation. The existing `scripts/find-event.sh` and
-  `scripts/test-events.sh` are the first layer of that approach.
+  `scripts/test-events.sh` are the first layer of that approach. The
+  `shuttleproctl tui` dashboard and [UAT checklist](UAT.md) extend that lane
+  into userspace profile validation.
 - UHID is the right integration framework for virtual HID devices. A future
   privileged/self-hosted runner can create a virtual ShuttlePro report
   descriptor through `/dev/uhid`, inject raw reports, and assert evdev output.
@@ -77,3 +81,25 @@ Acceptance criteria:
 - the jog wheel emits positive and negative `REL_DIAL` deltas;
 - unplug/replug rebinds cleanly;
 - repeated open/close and module reloads leave `dmesg` clean.
+
+## Userspace UAT Checklist
+
+After changing `userspace/`, verify on real hardware:
+
+```sh
+cd userspace
+cargo run --bin shuttleproctl -- detect
+cargo run --bin shuttleproctl -- monitor
+cargo run --bin shuttleproctl -- tui
+cargo run --bin shuttleprod -- --profile profiles/kdenlive.toml --dry-run --no-grab
+```
+
+Acceptance criteria:
+
+- device discovery reports the expected ShuttlePro event node;
+- monitor and TUI views agree on button, jog, and shuttle activity;
+- dry-run profile output matches the selected TOML profile;
+- real `shuttleprod` use with Kdenlive opens `/dev/uinput`, maps controls, and
+  releases its grab on shutdown.
+
+See [UAT.md](UAT.md) for the full step-by-step acceptance procedure.

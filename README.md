@@ -42,6 +42,14 @@ The companion userspace mapper is under [userspace/](userspace/). It provides
 `shuttleproctl` for device/profile testing and `shuttleprod` for profile-driven
 keyboard mapping through Linux `uinput`, including a bundled Kdenlive profile.
 
+Userspace command summary:
+
+- `shuttleproctl detect` prints the current ShuttlePro event node.
+- `shuttleproctl monitor` prints raw decoded device events.
+- `shuttleproctl tui` opens a live terminal dashboard for hardware UAT.
+- `shuttleproctl profile validate <file>` validates TOML profiles.
+- `shuttleprod --profile <file>` runs the profile mapper daemon.
+
 ## Build
 
 ```sh
@@ -154,6 +162,8 @@ hardening regressions are tracked until the pipeline passes again.
 
 See [docs/HARDENING.md](docs/HARDENING.md) for the full security and stability
 validation plan, including sanitizer and hardware stress-test lanes.
+See [docs/UAT.md](docs/UAT.md) for a step-by-step hardware acceptance test,
+including the `shuttleproctl` TUI and Kdenlive profile checks.
 
 Userspace mapper checks are included in CI when Rust is available:
 
