@@ -98,8 +98,9 @@ Pass criteria:
 
 - The SVG opens in a browser or vector editor.
 - The title references the selected profile.
-- Buttons 1 through 13 show the mapped profile actions.
-- Jog and shuttle sections show the profile actions for each direction.
+- Buttons 1 through 13 show both the profile function labels and key mappings.
+- Jog and shuttle sections show both function labels and key mappings for each
+  direction.
 
 ## Profile Dry Run
 

@@ -62,6 +62,9 @@ The generated SVG is a printable reference sheet based on the selected profile.
 Print at 100% scale and verify fit before cutting or laminating. It is not a
 dimension-certified adhesive overlay template.
 
+If a profile includes optional `label` fields for buttons, jog, or shuttle
+directions, the keymap prints both the human-readable function and the shortcut.
+
 ## Run the Kdenlive Profile
 
 ```sh

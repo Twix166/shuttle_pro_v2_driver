@@ -36,6 +36,7 @@ pub struct DeviceConfig {
 
 #[derive(Clone, Debug, Default, Deserialize)]
 pub struct ButtonConfig {
+    pub label: Option<String>,
     #[serde(default)]
     pub press: Vec<String>,
     #[serde(default)]
@@ -44,12 +45,17 @@ pub struct ButtonConfig {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct JogConfig {
+    pub positive_label: Option<String>,
+    pub negative_label: Option<String>,
     pub positive: Vec<String>,
     pub negative: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ShuttleConfig {
+    pub positive_label: Option<String>,
+    pub negative_label: Option<String>,
+    pub neutral_label: Option<String>,
     pub positive: Vec<String>,
     pub negative: Vec<String>,
     #[serde(default)]
@@ -69,18 +75,24 @@ pub struct CompiledProfile {
 
 #[derive(Clone, Debug, Default)]
 pub struct CompiledButton {
+    pub label: Option<String>,
     pub press: Vec<KeyChord>,
     pub release: Vec<KeyChord>,
 }
 
 #[derive(Clone, Debug)]
 pub struct CompiledJog {
+    pub positive_label: Option<String>,
+    pub negative_label: Option<String>,
     pub positive: Vec<KeyChord>,
     pub negative: Vec<KeyChord>,
 }
 
 #[derive(Clone, Debug)]
 pub struct CompiledShuttle {
+    pub positive_label: Option<String>,
+    pub negative_label: Option<String>,
+    pub neutral_label: Option<String>,
     pub positive: Vec<KeyChord>,
     pub negative: Vec<KeyChord>,
     pub neutral: Vec<KeyChord>,
@@ -119,6 +131,7 @@ impl Profile {
             buttons.insert(
                 number,
                 CompiledButton {
+                    label: button.label,
                     press: compile_chords(&button.press)?,
                     release: compile_chords(&button.release)?,
                 },
@@ -136,10 +149,15 @@ impl Profile {
             device: self.device,
             buttons,
             jog: CompiledJog {
+                positive_label: self.jog.positive_label,
+                negative_label: self.jog.negative_label,
                 positive: compile_chords(&self.jog.positive)?,
                 negative: compile_chords(&self.jog.negative)?,
             },
             shuttle: CompiledShuttle {
+                positive_label: self.shuttle.positive_label,
+                negative_label: self.shuttle.negative_label,
+                neutral_label: self.shuttle.neutral_label,
                 positive: compile_chords(&self.shuttle.positive)?,
                 negative: compile_chords(&self.shuttle.negative)?,
                 neutral: compile_chords(&self.shuttle.neutral)?,
@@ -208,10 +226,15 @@ mod tests {
             device: DeviceConfig::default(),
             buttons: BTreeMap::from([("14".to_string(), ButtonConfig::default())]),
             jog: JogConfig {
+                positive_label: None,
+                negative_label: None,
                 positive: vec!["right".to_string()],
                 negative: vec!["left".to_string()],
             },
             shuttle: ShuttleConfig {
+                positive_label: None,
+                negative_label: None,
+                neutral_label: None,
                 positive: vec!["l".to_string()],
                 negative: vec!["j".to_string()],
                 neutral: vec!["k".to_string()],

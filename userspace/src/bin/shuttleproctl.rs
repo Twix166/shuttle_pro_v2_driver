@@ -157,6 +157,8 @@ fn render_keymap_svg(profile: &CompiledProfile, title: &str) -> String {
         r#"<style>
 text { font-family: "Inter", "DejaVu Sans", Arial, sans-serif; fill: #111827; }
 .small { font-size: 18px; }
+.action { font-size: 16px; font-weight: 700; }
+.shortcut { font-size: 15px; fill: #4b5563; }
 .label { font-size: 22px; font-weight: 700; }
 .title { font-size: 36px; font-weight: 800; }
 .meta { font-size: 16px; fill: #4b5563; }
@@ -218,14 +220,22 @@ fn draw_transport_controls(svg: &mut String, profile: &CompiledProfile) {
         890,
         276,
         "small",
-        &format!("CW: {}", chords(&profile.jog.positive)),
+        &format!(
+            "CW: {} ({})",
+            label_or(&profile.jog.positive_label, "Jog Right"),
+            chords(&profile.jog.positive)
+        ),
     );
     text_center(
         svg,
         890,
         305,
         "small",
-        &format!("CCW: {}", chords(&profile.jog.negative)),
+        &format!(
+            "CCW: {} ({})",
+            label_or(&profile.jog.negative_label, "Jog Left"),
+            chords(&profile.jog.negative)
+        ),
     );
 
     rect(svg, 765, 420, 250, 95, 44, "control");
@@ -235,21 +245,33 @@ fn draw_transport_controls(svg: &mut String, profile: &CompiledProfile) {
         890,
         486,
         "small",
-        &format!("- {}", chords(&profile.shuttle.negative)),
+        &format!(
+            "- {} ({})",
+            label_or(&profile.shuttle.negative_label, "Reverse"),
+            chords(&profile.shuttle.negative)
+        ),
     );
     text_center(
         svg,
         890,
         512,
         "small",
-        &format!("0 {}", chords(&profile.shuttle.neutral)),
+        &format!(
+            "0 {} ({})",
+            label_or(&profile.shuttle.neutral_label, "Pause"),
+            chords(&profile.shuttle.neutral)
+        ),
     );
     text_center(
         svg,
         890,
         538,
         "small",
-        &format!("+ {}", chords(&profile.shuttle.positive)),
+        &format!(
+            "+ {} ({})",
+            label_or(&profile.shuttle.positive_label, "Forward"),
+            chords(&profile.shuttle.positive)
+        ),
     );
 }
 
@@ -273,16 +295,23 @@ fn draw_legend(svg: &mut String) {
 fn draw_button(svg: &mut String, number: u8, x: i32, y: i32, action: String) {
     rect(svg, x, y, 108, 76, 12, "button");
     text(svg, x + 10, y + 24, "button-num", &format!("{number:02}"));
-    wrapped_text(svg, x + 14, y + 50, 84, &action);
+    let (label, shortcut) = button_label_and_shortcut(&action);
+    wrapped_text(svg, x + 14, y + 47, 84, "action", &label);
+    wrapped_text(svg, x + 14, y + 69, 84, "shortcut", &shortcut);
 }
 
 fn button_action(profile: &CompiledProfile, number: u8) -> String {
-    profile
-        .buttons
-        .get(&number)
-        .map(|button| chords(&button.press))
-        .filter(|action| !action.is_empty())
-        .unwrap_or_else(|| "-".to_string())
+    let Some(button) = profile.buttons.get(&number) else {
+        return "-|-".to_string();
+    };
+    let shortcut = chords(&button.press);
+    let label = button
+        .label
+        .clone()
+        .filter(|label| !label.is_empty())
+        .unwrap_or_else(|| shortcut.clone());
+
+    format!("{label}|{shortcut}")
 }
 
 fn chords(chords: &[KeyChord]) -> String {
@@ -293,14 +322,29 @@ fn chords(chords: &[KeyChord]) -> String {
         .join(", ")
 }
 
-fn wrapped_text(svg: &mut String, x: i32, y: i32, width: usize, text_value: &str) {
+fn button_label_and_shortcut(action: &str) -> (String, String) {
+    let Some((label, shortcut)) = action.split_once('|') else {
+        return (action.to_string(), String::new());
+    };
+
+    (label.to_string(), shortcut.to_string())
+}
+
+fn label_or<'a>(label: &'a Option<String>, fallback: &'a str) -> &'a str {
+    label
+        .as_deref()
+        .filter(|label| !label.is_empty())
+        .unwrap_or(fallback)
+}
+
+fn wrapped_text(svg: &mut String, x: i32, y: i32, width: usize, class: &str, text_value: &str) {
     let max_chars = (width / 9).max(6);
     let mut line = String::new();
     let mut dy = 0;
 
     for word in text_value.split_whitespace() {
         if !line.is_empty() && line.len() + word.len() + 1 > max_chars {
-            text(svg, x, y + dy, "small", &line);
+            text(svg, x, y + dy, class, &line);
             line.clear();
             dy += 21;
         }
@@ -312,7 +356,7 @@ fn wrapped_text(svg: &mut String, x: i32, y: i32, width: usize, text_value: &str
     }
 
     if !line.is_empty() {
-        text(svg, x, y + dy, "small", &line);
+        text(svg, x, y + dy, class, &line);
     }
 }
 

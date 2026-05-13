@@ -9,51 +9,68 @@ name = "Contour ShuttlePro v2"
 button_base = 704
 
 [jog]
+positive_label = "Next Frame"
+negative_label = "Previous Frame"
 positive = ["right"]
 negative = ["left"]
 
 [shuttle]
+positive_label = "Forward"
+negative_label = "Reverse"
+neutral_label = "Pause"
 positive = ["l"]
 negative = ["j"]
 neutral = ["k"]
 rates_per_second = [0, 2, 4, 6, 8, 10, 12, 14]
 
 [buttons.1]
+label = "Play/Pause"
 press = ["space"]
 
 [buttons.2]
+label = "Zone In"
 press = ["i"]
 
 [buttons.3]
+label = "Zone Out"
 press = ["o"]
 
 [buttons.4]
+label = "Switch Monitor"
 press = ["t"]
 
 [buttons.5]
+label = "Save"
 press = ["ctrl+s"]
 
 [buttons.6]
+label = "Undo"
 press = ["ctrl+z"]
 
 [buttons.7]
+label = "Redo"
 press = ["ctrl+shift+z"]
 
 [buttons.8]
+label = "Cut Clip"
 press = ["shift+r"]
 
 [buttons.9]
+label = "Guide"
 press = ["g"]
 
 [buttons.10]
+label = "Delete"
 press = ["delete"]
 
 [buttons.11]
+label = "Copy"
 press = ["ctrl+c"]
 
 [buttons.12]
+label = "Paste"
 press = ["ctrl+v"]
 
 [buttons.13]
+label = "Escape"
 press = ["esc"]
-
