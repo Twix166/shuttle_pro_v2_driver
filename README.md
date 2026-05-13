@@ -92,6 +92,15 @@ sudo dkms install hid-shuttlepro/0.1.0
 sudo modprobe hid-shuttlepro
 ```
 
+For an automated DKMS plus userspace install, use:
+
+```sh
+scripts/install.sh
+```
+
+See [docs/INSTALL.md](docs/INSTALL.md) for installer options, post-install
+checks, and the packaging roadmap.
+
 Load the module automatically at boot:
 
 ```sh

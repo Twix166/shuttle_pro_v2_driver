@@ -11,6 +11,12 @@ cd userspace
 cargo build --release
 ```
 
+The repository installer can build and install both userspace binaries:
+
+```sh
+../scripts/install.sh --no-dkms
+```
+
 ## Test the Device
 
 ```sh
