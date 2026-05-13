@@ -11,3 +11,4 @@
 Module.symvers
 modules.order
 tests/test_decode
+userspace/target/

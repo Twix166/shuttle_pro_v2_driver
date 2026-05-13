@@ -19,6 +19,21 @@ cc -std=c11 -Wall -Wextra -Werror -I"$repo" \
 	"$repo/tests/test_decode.c" -o "$repo/tests/test_decode"
 "$repo/tests/test_decode"
 
+if [ -d "$repo/userspace" ]; then
+	if command -v cargo >/dev/null 2>&1; then
+		(
+			cd "$repo/userspace"
+			cargo fmt --check
+			cargo clippy --all-targets -- -D warnings
+			cargo test
+			cargo run --quiet --bin shuttleproctl -- profile validate profiles/kdenlive.toml
+			cargo run --quiet --bin shuttleproctl -- profile validate profiles/test.toml
+		)
+	else
+		echo "cargo not found; skipping userspace Rust checks"
+	fi
+fi
+
 make -C "$repo" W=1
 "$repo/tests/static-analysis.sh"
 

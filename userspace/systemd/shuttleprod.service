@@ -1,0 +1,12 @@
+[Unit]
+Description=Contour ShuttlePro v2 userspace profile mapper
+Documentation=https://github.com/Twix166/shuttle_pro_v2_driver
+
+[Service]
+ExecStart=%h/.local/bin/shuttleprod --profile %h/.config/shuttlepro/profiles/kdenlive.toml
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+

@@ -38,6 +38,10 @@ The driver exposes raw device controls through evdev:
 It intentionally does not map controls to keyboard shortcuts. Application
 profiles and macros belong in userspace.
 
+The companion userspace mapper is under [userspace/](userspace/). It provides
+`shuttleproctl` for device/profile testing and `shuttleprod` for profile-driven
+keyboard mapping through Linux `uinput`, including a bundled Kdenlive profile.
+
 ## Build
 
 ```sh
@@ -150,6 +154,25 @@ hardening regressions are tracked until the pipeline passes again.
 
 See [docs/HARDENING.md](docs/HARDENING.md) for the full security and stability
 validation plan, including sanitizer and hardware stress-test lanes.
+
+Userspace mapper checks are included in CI when Rust is available:
+
+```sh
+cd userspace
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test
+cargo run --bin shuttleproctl -- profile validate profiles/kdenlive.toml
+```
+
+For a non-invasive userspace hardware check:
+
+```sh
+cd userspace
+cargo run --bin shuttleproctl -- detect
+cargo run --bin shuttleproctl -- monitor
+cargo run --bin shuttleprod -- --profile profiles/kdenlive.toml --dry-run
+```
 
 ## License
 

@@ -1,0 +1,59 @@
+[profile]
+name = "kdenlive"
+application = "org.kde.kdenlive"
+
+[device]
+vendor_id = 0x0b33
+product_id = 0x0030
+name = "Contour ShuttlePro v2"
+button_base = 704
+
+[jog]
+positive = ["right"]
+negative = ["left"]
+
+[shuttle]
+positive = ["l"]
+negative = ["j"]
+neutral = ["k"]
+rates_per_second = [0, 2, 4, 6, 8, 10, 12, 14]
+
+[buttons.1]
+press = ["space"]
+
+[buttons.2]
+press = ["i"]
+
+[buttons.3]
+press = ["o"]
+
+[buttons.4]
+press = ["t"]
+
+[buttons.5]
+press = ["ctrl+s"]
+
+[buttons.6]
+press = ["ctrl+z"]
+
+[buttons.7]
+press = ["ctrl+shift+z"]
+
+[buttons.8]
+press = ["shift+r"]
+
+[buttons.9]
+press = ["g"]
+
+[buttons.10]
+press = ["delete"]
+
+[buttons.11]
+press = ["ctrl+c"]
+
+[buttons.12]
+press = ["ctrl+v"]
+
+[buttons.13]
+press = ["esc"]
+
