@@ -3,6 +3,15 @@
 Small out-of-tree HID driver for the Contour ShuttlePro v2 USB controller
 (`0b33:0030`).
 
+<p align="center">
+  <img
+    src="https://cdn.prod.website-files.com/68bad4196ea4422858dc1574/69d58e48c18051787f48bb7d_ShuttleProV2FRONT_Originalratio_1920x2880_U_100_1x1_1920x1920_U_100.png"
+    alt="Contour ShuttlePro v2 USB controller"
+    width="420">
+</p>
+
+Product image source: [Contour Design Shuttle Pro V2 product page](https://www.contourdesign.com/product/contour-shuttle-pro-v2).
+
 ## Status and Risk
 
 This is an experimental out-of-tree Linux kernel module. It has been tested on
