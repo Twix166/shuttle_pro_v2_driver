@@ -18,6 +18,7 @@ trap cleanup EXIT HUP INT TERM
 mkdir -p "$src/hid-shuttlepro-0.1.0" "$dkmstree" "$installtree"
 cp -a \
 	"$repo/hid-shuttlepro.c" \
+	"$repo/shuttlepro-report.h" \
 	"$repo/Makefile" \
 	"$repo/dkms.conf" \
 	"$repo/README.md" \

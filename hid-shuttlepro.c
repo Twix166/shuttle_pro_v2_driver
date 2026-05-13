@@ -16,20 +16,17 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 
+#include "shuttlepro-report.h"
+
 #define USB_VENDOR_ID_CONTOUR		0x0b33
 #define USB_DEVICE_ID_SHUTTLEPRO_V2	0x0030
 
-#define SHUTTLEPRO_REPORT_LEN		5
-#define SHUTTLEPRO_BUTTONS		13
 #define SHUTTLEPRO_BUTTON_BASE		BTN_TRIGGER_HAPPY1
-#define SHUTTLEPRO_SHUTTLE_MIN		(-7)
-#define SHUTTLEPRO_SHUTTLE_MAX		7
 
 struct shuttlepro {
 	struct input_dev *input;
+	struct shuttlepro_report_state state;
 	u16 buttons;
-	u8 jog;
-	bool have_jog;
 };
 
 static int shuttlepro_input_open(struct input_dev *input)
@@ -66,31 +63,20 @@ static int shuttlepro_raw_event(struct hid_device *hdev,
 {
 	struct shuttlepro *shuttle = hid_get_drvdata(hdev);
 	struct input_dev *input;
-	s8 spring;
-	u16 buttons;
-	int delta;
+	struct shuttlepro_report decoded;
 
-	if (!shuttle || size < SHUTTLEPRO_REPORT_LEN)
+	if (!shuttle)
+		return 0;
+
+	if (!shuttlepro_decode_report(data, size, &shuttle->state, &decoded))
 		return 0;
 
 	input = shuttle->input;
-	spring = clamp_t(s8, (s8)data[0],
-			 SHUTTLEPRO_SHUTTLE_MIN, SHUTTLEPRO_SHUTTLE_MAX);
-	buttons = data[3] | ((data[4] & 0x1f) << 8);
+	input_report_abs(input, ABS_MISC, decoded.shuttle);
+	if (decoded.has_jog_delta)
+		input_report_rel(input, REL_DIAL, decoded.jog_delta);
 
-	input_report_abs(input, ABS_MISC, spring);
-
-	if (!shuttle->have_jog) {
-		shuttle->jog = data[1];
-		shuttle->have_jog = true;
-	} else {
-		delta = (s8)(data[1] - shuttle->jog);
-		if (delta)
-			input_report_rel(input, REL_DIAL, delta);
-		shuttle->jog = data[1];
-	}
-
-	shuttlepro_report_buttons(shuttle, buttons);
+	shuttlepro_report_buttons(shuttle, decoded.buttons);
 	input_sync(input);
 
 	return 1;

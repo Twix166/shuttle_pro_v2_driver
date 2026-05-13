@@ -101,15 +101,25 @@ The automated suite covers:
 - smoke build of the kernel module with `W=1`;
 - source style via `checkpatch.pl` when available;
 - shell syntax and `shellcheck` when available;
+- parser regression tests for malformed reports, clamping, jog deltas,
+  wraparound, and button masking;
+- optional KUnit parser test module build when kernel headers enable KUnit;
 - unit tests for helper-script event-node discovery;
 - regression checks for license, DKMS metadata, udev rules, and risk notice;
 - isolated DKMS add/build flow without installing the module system-wide.
+- optional `sparse` and Coccinelle checks when those tools are available.
 
 Hardware integration test:
 
 ```sh
 scripts/find-event.sh
 sudo scripts/test-events.sh
+```
+
+Optional local KUnit parser test:
+
+```sh
+scripts/run-kunit.sh
 ```
 
 `scripts/find-event.sh` prints the current event node for `Contour ShuttlePro
@@ -125,6 +135,9 @@ used as the baseline, so no jog delta is emitted until a later report.
 The GitHub Actions pipeline runs the automated checks on every push and pull
 request. It cannot run the hardware integration test because CI runners do not
 have a Contour ShuttlePro v2 attached.
+
+See [docs/HARDENING.md](docs/HARDENING.md) for the full security and stability
+validation plan, including sanitizer and hardware stress-test lanes.
 
 ## License
 

@@ -10,3 +10,4 @@
 .module-common.o
 Module.symvers
 modules.order
+tests/test_decode

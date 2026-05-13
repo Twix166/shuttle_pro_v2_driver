@@ -1,4 +1,7 @@
 obj-m += hid-shuttlepro.o
+ifeq ($(BUILD_KUNIT),1)
+obj-m += hid-shuttlepro-kunit.o
+endif
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
 PWD := $(CURDIR)
@@ -10,6 +13,9 @@ all:
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
+
+kunit-build:
+	$(MAKE) -C $(KDIR) M=$(PWD) BUILD_KUNIT=1 modules
 
 install:
 	$(MAKE) -C $(KDIR) M=$(PWD) INSTALL_MOD_DIR=extra modules_install
@@ -31,4 +37,4 @@ dkms-install:
 dkms-remove:
 	dkms remove $(DKMS_NAME)/$(DKMS_VERSION) --all
 
-.PHONY: all clean install uninstall dkms-add dkms-build dkms-install dkms-remove
+.PHONY: all clean kunit-build install uninstall dkms-add dkms-build dkms-install dkms-remove

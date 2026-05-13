@@ -19,6 +19,7 @@ jobs:
             build-essential \
             dkms \
             linux-headers-generic \
+            sparse \
             shellcheck
 
       - name: Locate kernel headers and checkpatch
