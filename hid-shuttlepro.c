@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  * Contour ShuttlePro v2 HID driver.
  *
@@ -179,6 +179,6 @@ static struct hid_driver shuttlepro_driver = {
 };
 module_hid_driver(shuttlepro_driver);
 
-MODULE_AUTHOR("Codex");
+MODULE_AUTHOR("Robert Balm");
 MODULE_DESCRIPTION("Contour ShuttlePro v2 HID driver");
 MODULE_LICENSE("GPL");

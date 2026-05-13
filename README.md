@@ -3,6 +3,16 @@
 Small out-of-tree HID driver for the Contour ShuttlePro v2 USB controller
 (`0b33:0030`).
 
+## Status and Risk
+
+This is an experimental out-of-tree Linux kernel module. It has been tested on
+one ShuttlePro v2 device and one Fedora kernel, but it is not an official
+Contour Design driver and is not part of the upstream Linux kernel.
+
+Use this software entirely at your own risk. Kernel modules run with full
+kernel privileges and can crash, hang, or otherwise destabilize the system.
+There is no warranty; see [LICENSE](LICENSE).
+
 The driver exposes raw device controls through evdev:
 
 - `BTN_TRIGGER_HAPPY1` through `BTN_TRIGGER_HAPPY13` for the 13 physical
@@ -87,3 +97,8 @@ v2`; the number may change across reloads. Verify:
 
 The jog wheel reports an internal 8-bit absolute counter. The first report is
 used as the baseline, so no jog delta is emitted until a later report.
+
+## License
+
+This project is licensed under GPL-2.0-only, matching normal Linux kernel
+driver licensing practice. Source files use SPDX identifiers where applicable.
