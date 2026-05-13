@@ -3,6 +3,8 @@
 
 set -eu
 
+input_devices=${INPUT_DEVICES_PATH:-/proc/bus/input/devices}
+
 awk '
 	/^N: Name="Contour ShuttlePro v2"$/ { found = 1; next }
 	found && /^H: Handlers=/ {
@@ -15,4 +17,4 @@ awk '
 		}
 	}
 	found && /^$/ { found = 0 }
-' /proc/bus/input/devices
+' "$input_devices"

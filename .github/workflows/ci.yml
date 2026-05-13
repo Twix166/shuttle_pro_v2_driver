@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            dkms \
+            linux-headers-generic \
+            linux-source \
+            shellcheck
+
+      - name: Locate kernel headers and checkpatch
+        run: |
+          kdir="$(find /usr/src -maxdepth 1 -type d -name 'linux-headers-*-generic' | sort -V | tail -n 1)"
+          if [ -z "$kdir" ]; then
+            echo "No generic kernel headers found" >&2
+            exit 1
+          fi
+
+          src_archive="$(find /usr/src -maxdepth 1 -type f -name 'linux-source-*.tar.*' | sort -V | tail -n 1)"
+          kver="$(basename "$kdir" | sed 's/^linux-headers-//')"
+          mkdir -p /tmp/linux-source
+          tar -xf "$src_archive" -C /tmp/linux-source --strip-components=1
+
+          {
+            echo "KDIR=$kdir"
+            echo "KVER=$kver"
+            echo "CHECKPATCH=/tmp/linux-source/scripts/checkpatch.pl"
+          } >> "$GITHUB_ENV"
+
+      - name: Run CI checks
+        run: tests/ci.sh
+
+      - name: Run isolated DKMS build
+        run: tests/dkms-isolated.sh

@@ -89,6 +89,24 @@ sudo udevadm trigger --subsystem-match=input
 
 ## Test
 
+Automated checks:
+
+```sh
+tests/ci.sh
+tests/dkms-isolated.sh
+```
+
+The automated suite covers:
+
+- smoke build of the kernel module with `W=1`;
+- source style via `checkpatch.pl` when available;
+- shell syntax and `shellcheck` when available;
+- unit tests for helper-script event-node discovery;
+- regression checks for license, DKMS metadata, udev rules, and risk notice;
+- isolated DKMS add/build flow without installing the module system-wide.
+
+Hardware integration test:
+
 ```sh
 scripts/find-event.sh
 sudo scripts/test-events.sh
@@ -103,6 +121,10 @@ v2`; the number may change across reloads. Verify:
 
 The jog wheel reports an internal 8-bit absolute counter. The first report is
 used as the baseline, so no jog delta is emitted until a later report.
+
+The GitHub Actions pipeline runs the automated checks on every push and pull
+request. It cannot run the hardware integration test because CI runners do not
+have a Contour ShuttlePro v2 attached.
 
 ## License
 
