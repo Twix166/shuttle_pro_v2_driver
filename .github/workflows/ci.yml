@@ -30,16 +30,21 @@ jobs:
             exit 1
           fi
 
-          src_archive="$(find /usr/src -maxdepth 1 -type f -name 'linux-source-*.tar.*' | sort -V | tail -n 1)"
           kver="$(basename "$kdir" | sed 's/^linux-headers-//')"
-          mkdir -p /tmp/linux-source
-          tar -xf "$src_archive" -C /tmp/linux-source --strip-components=1
+          src_archive="$(find /usr/src -maxdepth 3 -type f -name 'linux-source-*.tar.*' | sort -V | tail -n 1)"
 
           {
             echo "KDIR=$kdir"
             echo "KVER=$kver"
-            echo "CHECKPATCH=/tmp/linux-source/scripts/checkpatch.pl"
           } >> "$GITHUB_ENV"
+
+          if [ -n "$src_archive" ]; then
+            mkdir -p /tmp/linux-source
+            tar -xf "$src_archive" -C /tmp/linux-source --strip-components=1
+            echo "CHECKPATCH=/tmp/linux-source/scripts/checkpatch.pl" >> "$GITHUB_ENV"
+          else
+            echo "No linux-source archive found; checkpatch will be skipped"
+          fi
 
       - name: Run CI checks
         run: tests/ci.sh
