@@ -3,7 +3,7 @@
 
 set -eu
 
-dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+dir=$(unset CDPATH; cd -- "$(dirname -- "$0")" && pwd)
 event=$("$dir/find-event.sh")
 
 if [ -z "$event" ]; then

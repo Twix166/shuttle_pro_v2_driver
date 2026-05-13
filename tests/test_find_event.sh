@@ -2,7 +2,7 @@
 
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo=$(unset CDPATH; cd -- "$(dirname -- "$0")/.." && pwd)
 
 actual=$(INPUT_DEVICES_PATH="$repo/tests/fixtures/input-devices-shuttle.txt" \
 	"$repo/scripts/find-event.sh")

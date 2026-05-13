@@ -2,7 +2,7 @@
 
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo=$(unset CDPATH; cd -- "$(dirname -- "$0")/.." && pwd)
 
 grep -q '^// SPDX-License-Identifier: GPL-2.0-only$' \
 	"$repo/hid-shuttlepro.c"

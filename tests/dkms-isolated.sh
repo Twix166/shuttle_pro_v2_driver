@@ -2,7 +2,7 @@
 
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo=$(unset CDPATH; cd -- "$(dirname -- "$0")/.." && pwd)
 tmp=${TMPDIR:-/tmp}/hid-shuttlepro-dkms-test.$$
 src="$tmp/src"
 dkmstree="$tmp/dkms"

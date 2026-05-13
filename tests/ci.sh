@@ -2,7 +2,7 @@
 
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo=$(unset CDPATH; cd -- "$(dirname -- "$0")/.." && pwd)
 
 for file in "$repo"/scripts/*.sh "$repo"/tests/*.sh; do
 	sh -n "$file"
