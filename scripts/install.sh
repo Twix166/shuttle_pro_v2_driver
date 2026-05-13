@@ -84,12 +84,17 @@ sudo_cmd()
 	sudo "$@"
 }
 
+dkms_module_exists()
+{
+	dkms status 2>/dev/null | grep -Eq "^${package}/${version}([, ]|$)"
+}
+
 install_kernel_driver()
 {
 	need_cmd dkms
 
 	echo "Installing DKMS module $package/$version"
-	if dkms status "$package/$version" >/dev/null 2>&1; then
+	if dkms_module_exists; then
 		sudo_cmd dkms remove "$package/$version" --all
 	fi
 
