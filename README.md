@@ -13,6 +13,12 @@ Use this software entirely at your own risk. Kernel modules run with full
 kernel privileges and can crash, hang, or otherwise destabilize the system.
 There is no warranty; see [LICENSE](LICENSE).
 
+## Creation Note
+
+The initial driver, documentation, DKMS metadata, and helper scripts in this
+repository were created with OpenAI Codex using the GPT-5.5 model, with live
+testing against an attached Contour ShuttlePro v2 device.
+
 The driver exposes raw device controls through evdev:
 
 - `BTN_TRIGGER_HAPPY1` through `BTN_TRIGGER_HAPPY13` for the 13 physical
